@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API_URL from '../config';
 import { Trash2 } from 'lucide-react';
@@ -11,6 +11,7 @@ const MyClaims = () => {
   const [found, setFound] = useState([]);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -31,7 +32,6 @@ const MyClaims = () => {
     }
   };
 
-  // Delete function for found items
   const handleDeleteFound = async (itemId) => {
     if (window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
       try {
@@ -39,7 +39,7 @@ const MyClaims = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Item deleted successfully');
-        fetchData(); // Refresh the list
+        fetchData();
       } catch (error) {
         toast.error(error.response?.data?.error || 'Failed to delete item');
       }
@@ -83,7 +83,19 @@ const MyClaims = () => {
                       </span>
                     </div>
                   </div>
-                  <Link to={`/item/${item._id}`} className="text-blue-600 hover:underline">View Details →</Link>
+                  <div className="flex flex-col space-y-2">
+                    <Link to={`/item/${item._id}`} className="text-blue-600 hover:underline text-sm">
+                      View Details →
+                    </Link>
+                    {item.claimRequest?.status === 'approved' && (
+                      <button
+                        onClick={() => navigate(`/chat/${item.reportedBy._id}`)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                      >
+                        💬 Chat with Finder
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

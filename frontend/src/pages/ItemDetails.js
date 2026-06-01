@@ -162,12 +162,19 @@ const ItemDetails = () => {
             </div>
           )}
           
+         
           {item.status === 'claimed' && isClaimer && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800 font-semibold">✅ Your claim has been approved!</p>
-              <p className="text-green-700 mt-1">Contact the finder to arrange pickup. They will reach out to you.</p>
-            </div>
-          )}
+  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+    <p className="text-green-800 font-semibold">✅ Your claim has been approved!</p>
+    <p className="text-green-700 mt-1">You can now chat with the finder to arrange pickup.</p>
+    <button 
+      onClick={() => navigate(`/chat/${item.reportedBy._id}`)} 
+      className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      💬 Chat with Finder
+    </button>
+  </div>
+)}
           
           {item.status === 'claimed' && isFinder && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
