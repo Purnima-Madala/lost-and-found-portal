@@ -11,14 +11,13 @@ export const SocketProvider = ({ children }) => {
   const { user, token } = useAuth();
 
   useEffect(() => {
-    if (token && user) {
-      // Get socket URL from environment variable or use default
+    // Only run on client-side
+    if (typeof window !== 'undefined' && token && user) {
       const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5002';
       const newSocket = io(SOCKET_URL);
       
       setSocket(newSocket);
       
-      // Register user with socket
       newSocket.on('connect', () => {
         newSocket.emit('register-user', user.id);
       });
