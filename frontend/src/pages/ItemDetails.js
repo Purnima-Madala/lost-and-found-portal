@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 import API_URL from '../config';
+import { Trash2 } from 'lucide-react';
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -63,6 +64,21 @@ const ItemDetails = () => {
     }
   };
 
+  // Delete function for the item
+  const handleDeleteItem = async () => {
+    if (window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      try {
+        await axios.delete(`${API_URL}/items/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success('Item deleted successfully');
+        navigate('/');
+      } catch (error) {
+        toast.error(error.response?.data?.error || 'Failed to delete item');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -84,7 +100,19 @@ const ItemDetails = () => {
         <img src={item.imageUrl} alt={item.title} className="w-full h-96 object-cover" />
         
         <div className="p-6">
-          <h1 className="text-3xl font-bold mb-2">{item.title}</h1>
+          <div className="flex justify-between items-start mb-4">
+            <h1 className="text-3xl font-bold">{item.title}</h1>
+            {isFinder && (
+              <button
+                onClick={handleDeleteItem}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center space-x-2"
+                title="Delete item"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Delete Item</span>
+              </button>
+            )}
+          </div>
           <p className="text-gray-600 mb-4">{item.category}</p>
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -123,7 +151,13 @@ const ItemDetails = () => {
           {canClaim && !hasPendingClaim && (
             <div className="border-t pt-6">
               <h3 className="font-semibold text-gray-700 mb-3">Claim This Item</h3>
-              <textarea value={claimMessage} onChange={(e) => setClaimMessage(e.target.value)} placeholder="Describe why this item belongs to you (e.g., color, markings, where you lost it)..." rows="3" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-3" />
+              <textarea 
+                value={claimMessage} 
+                onChange={(e) => setClaimMessage(e.target.value)} 
+                placeholder="Describe why this item belongs to you (e.g., color, markings, where you lost it)..." 
+                rows="3" 
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-3" 
+              />
               <button onClick={handleClaim} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Submit Claim Request</button>
             </div>
           )}

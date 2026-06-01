@@ -5,13 +5,14 @@ import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 import API_URL from '../config';
+import { Trash2 } from 'lucide-react';
 
 const LostItems = () => {
   const [lostItems, setLostItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const { token } = useAuth();
+  const { token, user } = useAuth(); // Added user here
   
   const [formData, setFormData] = useState({
     title: '',
@@ -37,6 +38,21 @@ const LostItems = () => {
       toast.error('Failed to fetch lost items');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Delete function - fixed to use API_URL
+  const handleDeleteLost = async (itemId) => {
+    if (window.confirm('Are you sure you want to delete this lost item? This action cannot be undone.')) {
+      try {
+        await axios.delete(`${API_URL}/lost-items/${itemId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success('Lost item deleted successfully');
+        fetchLostItems(); // Refresh the list
+      } catch (error) {
+        toast.error(error.response?.data?.error || 'Failed to delete item');
+      }
     }
   };
 
@@ -162,7 +178,7 @@ const LostItems = () => {
           </form>
         </div>
       )}
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {lostItems.length === 0 ? (
           <div className="col-span-full text-center py-12 text-gray-500">
@@ -175,8 +191,22 @@ const LostItems = () => {
                 <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover" />
               )}
               <div className="p-4">
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-gray-600 text-sm mb-2">{item.category}</p>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                    <p className="text-gray-600 text-sm mb-2">{item.category}</p>
+                  </div>
+                  {/* Delete button - only show if current user owns this item */}
+                  {item.reportedBy?._id === user?.id && (
+                    <button
+                      onClick={() => handleDeleteLost(item._id)}
+                      className="text-red-600 hover:text-red-800 transition p-1"
+                      title="Delete item"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
                 <p className="text-gray-600 text-sm">📍 Lost at: {item.location}</p>
                 <p className="text-gray-500 text-xs mt-2">
                   Lost {formatDistanceToNow(new Date(item.lostDate), { addSuffix: true })}
@@ -185,7 +215,7 @@ const LostItems = () => {
                   <p className="text-green-600 text-sm mt-2 font-semibold">🎁 Reward: {item.reward}</p>
                 )}
                 <p className="text-gray-700 text-sm mt-2 line-clamp-2">{item.description}</p>
-                <p className="text-gray-500 text-xs mt-2">Posted by: {item.reportedBy.name}</p>
+                <p className="text-gray-500 text-xs mt-2">Posted by: {item.reportedBy?.name || 'Unknown'}</p>
               </div>
             </div>
           ))

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API_URL from '../config';
+import { Trash2 } from 'lucide-react';
 
 const MyClaims = () => {
   const [claims, setClaims] = useState([]);
@@ -30,6 +31,21 @@ const MyClaims = () => {
     }
   };
 
+  // Delete function for found items
+  const handleDeleteFound = async (itemId) => {
+    if (window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      try {
+        await axios.delete(`${API_URL}/items/${itemId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success('Item deleted successfully');
+        fetchData(); // Refresh the list
+      } catch (error) {
+        toast.error(error.response?.data?.error || 'Failed to delete item');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -42,6 +58,7 @@ const MyClaims = () => {
     <div className="max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">My Items</h1>
       
+      {/* Items I've Claimed */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Items I've Claimed</h2>
         {claims.length === 0 ? (
@@ -55,9 +72,13 @@ const MyClaims = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold">{item.title}</h3>
                     <p className="text-gray-600 text-sm">Found at: {item.location}</p>
-                    <p className="text-gray-600 text-sm">By: {item.reportedBy.name}</p>
+                    <p className="text-gray-600 text-sm">By: {item.reportedBy?.name || 'Unknown'}</p>
                     <div className="mt-2">
-                      <span className={`inline-block px-2 py-1 text-xs rounded ${item.claimRequest?.status === 'approved' ? 'bg-green-100 text-green-800' : item.claimRequest?.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      <span className={`inline-block px-2 py-1 text-xs rounded ${
+                        item.claimRequest?.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                        item.claimRequest?.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
                         {item.claimRequest?.status || 'pending'}
                       </span>
                     </div>
@@ -70,6 +91,7 @@ const MyClaims = () => {
         )}
       </div>
       
+      {/* Items I've Found */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Items I've Found</h2>
         {found.length === 0 ? (
@@ -88,7 +110,18 @@ const MyClaims = () => {
                       <p className="text-yellow-600 text-sm mt-1">⚠️ Has a pending claim request!</p>
                     )}
                   </div>
-                  <Link to={`/item/${item._id}`} className="text-blue-600 hover:underline">View Details →</Link>
+                  <div className="flex space-x-2">
+                    <Link to={`/item/${item._id}`} className="text-blue-600 hover:underline">
+                      View Details →
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteFound(item._id)}
+                      className="text-red-600 hover:text-red-800 transition"
+                      title="Delete item"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

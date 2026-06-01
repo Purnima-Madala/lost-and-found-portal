@@ -115,5 +115,37 @@ router.get('/:id', authenticateUser, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+// Delete lost item (only the owner can delete)
+router.delete('/:id', authenticateUser, async (req, res) => {
+  try {
+    const item = await LostItem.findById(req.params.id);
+    
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    // Check if user is the one who reported the item
+    if (item.reportedBy.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'You can only delete your own items' });
+    }
+    
+    // If item has an image in Cloudinary, delete it
+    if (item.publicId) {
+      try {
+        const cloudinary = require('cloudinary').v2;
+        await cloudinary.uploader.destroy(item.publicId);
+      } catch (cloudinaryError) {
+        console.error('Cloudinary delete error:', cloudinaryError);
+      }
+    }
+    
+    await LostItem.findByIdAndDelete(req.params.id);
+    console.log('Lost item deleted successfully:', req.params.id);
+    
+    res.json({ success: true, message: 'Item deleted successfully' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = router;
