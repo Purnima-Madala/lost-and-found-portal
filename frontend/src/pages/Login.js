@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:5002/api/auth/login', { email });
+      const response = await axios.post(`${API_URL}/auth/login`, { email });
       
       if (response.data.success) {
         login(response.data.token, response.data.user);
@@ -41,7 +42,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:5002/api/auth/verify', { email, code: verificationCode });
+      const response = await axios.post(`${API_URL}/auth/verify`, { email, code: verificationCode });
       
       if (response.data.success) {
         login(response.data.token, response.data.user);

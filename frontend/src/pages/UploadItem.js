@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const UploadItem = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const UploadItem = () => {
     data.append('location', formData.location);
     
     try {
-      await axios.post('http://localhost:5002/api/items/upload', data, {
+      await axios.post(`${API_URL}/items/upload`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`

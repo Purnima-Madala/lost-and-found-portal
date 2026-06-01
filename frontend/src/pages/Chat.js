@@ -5,6 +5,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Send } from 'lucide-react';
+import API_URL from '../config';
+
+// Instead of hardcoding URL, use:
+
 
 const Chat = () => {
   const { userId } = useParams();
@@ -40,7 +44,7 @@ const Chat = () => {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`http://localhost:5002/api/messages/${userId}`, {
+      const response = await axios.get(`${API_URL}/messages/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessages(response.data);
@@ -51,7 +55,7 @@ const Chat = () => {
 
   const fetchOtherUser = async () => {
     try {
-      const response = await axios.get(`http://localhost:5002/api/auth/user/${userId}`, {
+      const response = await axios.get(`${API_URL}/auth/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOtherUser(response.data);
@@ -73,7 +77,7 @@ const Chat = () => {
     };
     
     try {
-      await axios.post('http://localhost:5002/api/messages/send', messageData, {
+      await axios.post(`${API_URL}/messages/send`, messageData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

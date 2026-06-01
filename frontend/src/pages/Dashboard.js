@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ItemCard from '../components/ItemCard';
 import SearchFilter from '../components/SearchFilter';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const Dashboard = () => {
   const [items, setItems] = useState([]);
@@ -17,7 +18,7 @@ const Dashboard = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get('http://localhost:5002/api/items/found', {
+      const response = await axios.get(`${API_URL}/items/found`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setItems(response.data);

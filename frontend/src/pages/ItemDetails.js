@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
+import API_URL from '../config';
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -19,7 +20,7 @@ const ItemDetails = () => {
 
   const fetchItem = async () => {
     try {
-      const response = await axios.get(`http://localhost:5002/api/items/${id}`, {
+      const response = await axios.get(`${API_URL}/items/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setItem(response.data);
@@ -38,7 +39,7 @@ const ItemDetails = () => {
     }
     
     try {
-      await axios.post(`http://localhost:5002/api/items/${id}/claim`, 
+      await axios.post(`${API_URL}/items/${id}/claim`, 
         { message: claimMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -51,7 +52,7 @@ const ItemDetails = () => {
 
   const handleClaimResponse = async (status) => {
     try {
-      await axios.put(`http://localhost:5002/api/items/${id}/claim/respond`,
+      await axios.put(`${API_URL}/items/${id}/claim/respond`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );

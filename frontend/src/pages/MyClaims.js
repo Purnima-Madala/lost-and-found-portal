@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import API_URL from '../config';
 
 const MyClaims = () => {
   const [claims, setClaims] = useState([]);
@@ -17,8 +18,8 @@ const MyClaims = () => {
   const fetchData = async () => {
     try {
       const [claimsRes, foundRes] = await Promise.all([
-        axios.get('http://localhost:5002/api/items/my/claims', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:5002/api/items/my/found', { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(`${API_URL}/items/my/claims`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API_URL}/items/my/found`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setClaims(claimsRes.data);
       setFound(foundRes.data);

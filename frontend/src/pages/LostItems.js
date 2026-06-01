@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
+import API_URL from '../config';
 
 const LostItems = () => {
   const [lostItems, setLostItems] = useState([]);
@@ -28,7 +29,7 @@ const LostItems = () => {
 
   const fetchLostItems = async () => {
     try {
-      const response = await axios.get('http://localhost:5002/api/lost-items', {
+      const response = await axios.get(`${API_URL}/lost-items`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLostItems(response.data);
@@ -70,7 +71,7 @@ const LostItems = () => {
     if (image) data.append('image', image);
     
     try {
-      await axios.post('http://localhost:5002/api/lost-items/report', data, {
+      await axios.post(`${API_URL}/lost-items/report`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`

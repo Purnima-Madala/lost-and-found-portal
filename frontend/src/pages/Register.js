@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
+import API_URL from '../config';
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +27,7 @@ const Register = () => {
     
     try {
       // HARDCODE THE URL HERE
-      await axios.post('http://localhost:5002/api/auth/register', formData);
+      await axios.post(`${API_URL}/auth/register`, formData);
       toast.success('Registration successful! Please check your email for verification code.');
       navigate('/login');
     } catch (error) {

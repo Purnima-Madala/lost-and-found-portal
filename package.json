@@ -1,5 +1,6 @@
 {
-  "dependencies": {
-    "lucide-react": "^1.17.0"
-  }
+  "name": "lost-and-found-portal",
+  "version": "1.0.0",
+  "description": "Lost and Found Portal",
+  "private": true
 }

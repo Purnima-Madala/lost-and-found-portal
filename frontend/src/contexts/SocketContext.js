@@ -12,7 +12,10 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (token && user) {
-      const newSocket = io('http://localhost:5002');
+      // Get socket URL from environment variable or use default
+      const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5002';
+      const newSocket = io(SOCKET_URL);
+      
       setSocket(newSocket);
       
       // Register user with socket
