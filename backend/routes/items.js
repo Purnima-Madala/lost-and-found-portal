@@ -3,8 +3,6 @@ const router = express.Router();
 const Item = require('../models/Item');
 const { upload } = require('../utils/cloudinary');
 const { authenticateUser } = require('../middleware/auth');
-// In the upload route, change imageUrl to:
-const imageUrl = req.file.path;  // Cloudinary returns the URL
 
 // Upload found item
 router.post('/upload', authenticateUser, upload.single('image'), async (req, res) => {
@@ -23,9 +21,8 @@ router.post('/upload', authenticateUser, upload.single('image'), async (req, res
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
     
-    // Get image URL - use production Render URL
-    const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
-    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // Get image URL from Cloudinary
+    const imageUrl = req.file.path;
     
     const newItem = new Item({
       title,
