@@ -21,8 +21,18 @@ router.post('/upload', authenticateUser, upload.single('image'), async (req, res
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
     
-    // Get image URL from Cloudinary
-    const imageUrl = req.file.path;
+    // Get image URL - use production Render URL if available
+    let imageUrl;
+    if (req.file.path) {
+      // If using Cloudinary, req.file.path already has the full URL
+      imageUrl = req.file.path;
+    } else {
+      // Fallback to local storage with production URL
+      const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
+      imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    }
+    
+    console.log('Saving image URL:', imageUrl);
     
     const newItem = new Item({
       title,
@@ -30,7 +40,7 @@ router.post('/upload', authenticateUser, upload.single('image'), async (req, res
       category,
       location,
       imageUrl: imageUrl,
-      publicId: req.file.filename,
+      publicId: req.file.filename || req.file.public_id,
       reportedBy: req.user.id,
       dateFound: new Date()
     });

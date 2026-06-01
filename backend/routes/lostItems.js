@@ -16,10 +16,18 @@ router.post('/report', authenticateUser, upload.single('image'), async (req, res
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
     
-    // In the report route:
+    // Get image URL - use production Render URL if available
     let imageUrl = null;
     if (req.file) {
-      imageUrl = req.file.path;  // Cloudinary returns the URL
+      if (req.file.path) {
+        // If using Cloudinary, req.file.path already has the full URL
+        imageUrl = req.file.path;
+      } else {
+        // Fallback to local storage with production URL
+        const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
+        imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      }
+      console.log('Saving image URL:', imageUrl);
     }
     
     const lostItem = new LostItem({
@@ -29,7 +37,7 @@ router.post('/report', authenticateUser, upload.single('image'), async (req, res
       location,
       reward: reward || 'No reward offered',
       imageUrl: imageUrl,
-      publicId: req.file?.filename,
+      publicId: req.file?.filename || req.file?.public_id,
       reportedBy: req.user.id
     });
     
