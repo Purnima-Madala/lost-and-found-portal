@@ -21,8 +21,9 @@ router.post('/upload', authenticateUser, upload.single('image'), async (req, res
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
     
-    // Get image URL (local file path)
-    const imageUrl = `http://localhost:${process.env.PORT || 5002}/uploads/${req.file.filename}`;
+    // Get image URL - use production Render URL
+    const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
     
     const newItem = new Item({
       title,

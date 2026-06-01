@@ -18,7 +18,9 @@ router.post('/report', authenticateUser, upload.single('image'), async (req, res
     
     let imageUrl = null;
     if (req.file) {
-      imageUrl = `http://localhost:${process.env.PORT || 5002}/uploads/${req.file.filename}`;
+      // Use production Render URL instead of localhost
+      const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
+      imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
     }
     
     const lostItem = new LostItem({
