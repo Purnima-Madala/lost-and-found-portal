@@ -16,11 +16,10 @@ router.post('/report', authenticateUser, upload.single('image'), async (req, res
       return res.status(400).json({ success: false, error: 'All fields are required' });
     }
     
+    // In the report route:
     let imageUrl = null;
     if (req.file) {
-      // Use production Render URL instead of localhost
-      const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5002}`;
-      imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      imageUrl = req.file.path;  // Cloudinary returns the URL
     }
     
     const lostItem = new LostItem({

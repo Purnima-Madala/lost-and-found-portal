@@ -3,6 +3,8 @@ const router = express.Router();
 const Item = require('../models/Item');
 const { upload } = require('../utils/cloudinary');
 const { authenticateUser } = require('../middleware/auth');
+// In the upload route, change imageUrl to:
+const imageUrl = req.file.path;  // Cloudinary returns the URL
 
 // Upload found item
 router.post('/upload', authenticateUser, upload.single('image'), async (req, res) => {
