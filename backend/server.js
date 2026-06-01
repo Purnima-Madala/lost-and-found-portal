@@ -11,9 +11,22 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
+
+// Allowed origins for CORS (add your Vercel URLs here)
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'https://lost-and-found-frontend-nine.vercel.app',
+  'https://lost-and-found-frontend-g89la2hak.vercel.app',
+  'https://lost-and-found-frontend.vercel.app'
+];
+
+// Socket.IO with CORS
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -22,11 +35,21 @@ const io = new Server(httpServer, {
 // MAKE IO GLOBALLY AVAILABLE
 global.io = io;
 
-// Middleware
+// CORS middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -45,20 +68,20 @@ mongoose.connect(process.env.MONGODB_URI, {
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
 const messageRoutes = require('./routes/messages');
-const lostItemRoutes = require('./routes/lostItems'); // ADD THIS LINE
+const lostItemRoutes = require('./routes/lostItems');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/lost-items', lostItemRoutes); // ADD THIS LINE
+app.use('/api/lost-items', lostItemRoutes);
 
 // Simple test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
-// Socket.IO for real-time chat and notifications (COMBINED INTO ONE BLOCK)
+// Socket.IO for real-time chat and notifications
 io.on('connection', (socket) => {
   console.log('🟢 New user connected:', socket.id);
   
